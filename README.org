@@ -1,0 +1,93 @@
+#+TITLE: region-wrapper
+#+AUTHOR: KURASHIKI Satoru
+#+DESCRIPTION: Wrap / unwrap / rewrap selected regions in Emacs.
+#+URL: https://github.com/lurdan/emacs-region-wrapper
+
+* Overview
+`region-wrapper` is a small Emacs utility to wrap, unwrap, and rewrap selected regions.
+
+The operation is limited to the currently active region; it does not try to infer, expand, or alter the target region.
+Instead, region selection is expected to be handled by other well-established packages (such as `expand-region`, `expreg`, etc.).
+
+Features:
+- Wrap a region with a pair of characters or strings
+- Unwrap if the same pair is already used
+- Rewrap if a different pair is specified
+- Supports multi-character pairs (e.g., "/*" … "*/", "begin" … "end")
+- With a universal argument (`C-u`), always wrap
+
+Non-Features:
+- Guess what should be operated on or how
+- Change the active region
+- Apply mode-specific or context-aware behavior
+
+* Installation
+
+1. Place `region-wrapper.el` in your Emacs load path:
+
+   #+BEGIN_SRC emacs-lisp
+   (add-to-list 'load-path "/path/to/region-wrapper/")
+   #+END_SRC
+
+2. Load the package:
+
+   #+BEGIN_SRC emacs-lisp
+   (require 'region-wrapper)
+   #+END_SRC
+
+* Usage
+
+Select a region and run one of the following commands:
+
+- `M-x region-wrapper-wrap`
+  Prompt for a pair to wrap / unwrap / rewrap the region.
+- `M-x region-wrapper-sqm`
+  Wrap the region with single quotes `''`.
+- `M-x region-wrapper-dqm`
+  Wrap the region with double quotes `""`.
+- `M-x region-wrapper-paren`
+  Wrap the region with parentheses `()`.
+- `M-x region-wrapper-bracket`
+  Wrap the region with square brackets `[]`.
+
+** Universal argument
+
+Use `C-u` before any command to **always wrap** the region, even if it is already wrapped.
+
+* Customization samples
+
+You can customize the pairs supported by `region-wrapper` using `region-wrapper-pairs`.
+
+#+BEGIN_SRC emacs-lisp
+(setq region-wrapper-pairs
+      '(("'" . "'")
+        ("\"" . "\"")
+        ("`" . "`")
+        ("(" . ")")
+        ("( " . " )")
+        ("[" . "]")
+        ("[ " . " ]")
+        ("{" . "}")
+        ("{ " . " }")
+        ("/*" . "*/")
+        ("begin" . "end")
+        ("<" . ">")))  ;; Example: add new pair
+#+END_SRC
+
+`region-wrapper` also works naturally with `selected.el`, which activates a keymap when a region is active.
+
+#+BEGIN_SRC emacs-lisp
+  :bind (:map selected-keymap
+              ("\"" . region-wrapper-dqm)
+              ("'" . region-wrapper-sqm)
+              ("(" . region-wrapper-paren)
+              (")" . region-wrapper-paren)
+              ("[" . region-wrapper-bracket)
+              ("]" . region-wrapper-bracket)
+              ("{" . region-wrapper-brace)
+              ("}" . region-wrapper-brace))
+#+END_SRC
+
+* License
+
+GPLv3
