@@ -74,10 +74,27 @@ You can customize the pairs supported by `region-wrapper` using `region-wrapper-
         ("<" . ">")))  ;; Example: add new pair
 #+END_SRC
 
+Although region-wrapper itself is deliberately mode-agnostic, you can achieve
+mode-specific pair lists by using `setq-local` inside mode hooks.
+
+#+BEGIN_SRC emacs-lisp
+(defun my--region-wrapper-pairs-for-text ()
+  (setq-local region-wrapper-pairs
+              '(("\"" . "\"")
+                ("'" . "'")
+                ("“" . "”")
+                ("‘" . "’")
+                ("「" . "」")
+                ("(" . ")"))))
+
+(add-hook 'text-mode-hook #'my--region-wrapper-pairs-for-text)
+#+END_SRC
+
 `region-wrapper` also works naturally with `selected.el`, which activates a keymap when a region is active.
 
 #+BEGIN_SRC emacs-lisp
   :bind (:map selected-keymap
+              ("w" . region-wrapper-wrap)
               ("\"" . region-wrapper-dqm)
               ("'" . region-wrapper-sqm)
               ("(" . region-wrapper-paren)
@@ -87,6 +104,33 @@ You can customize the pairs supported by `region-wrapper` using `region-wrapper-
               ("{" . region-wrapper-brace)
               ("}" . region-wrapper-brace))
 #+END_SRC
+
+* Alternatives
+
+- insert-pair (built-in):
+  A simple built-in command for inserting matching pairs at point or around an active region.
+  It focuses on immediate insertion and does not support toggling (unwrap/rewrap) or multi-character pairs.
+
+- [[https://github.com/Fuco1/smartparens][smartparens]]:
+  A powerful, context-aware framework for structural editing of pairs and expressions.
+  While feature-rich, it is heavier and more mode-sensitive than `region-wrapper`, which deliberately avoids inference and context sensitivity.
+
+- [[https://github.com/rejeep/wrap-region.el][wrap-region]]:
+  Automatically wraps an active region when certain keys are typed.
+  Optimized for on-the-fly wrapping via key presses, whereas `region-wrapper` provides explicit commands and supports unwrap/rewrap functionality.
+
+- [[https://github.com/mkleehammer/surround][surround.el]]:
+  Inspired by `vim-surround`, it offers surround, replace, and delete operations for text objects using single-character pairs.
+  Typically operates on inferred text objects, while `region-wrapper` strictly works only on the currently active region.
+
+- [[https://github.com/emacs-evil/evil-surround][evil-surround.el]]:
+  A `vim-surround` implementation for Evil mode, primarily operating on text objects.
+  In contrast, `region-wrapper` is Evil-agnostic and requires an explicitly active region, avoiding text object inference.
+
+- [[https://github.com/cute-jumper/embrace.el][embrace.el]]:
+  An Evil-independent implementation of `vim-surround` that leverages `expand-region` to select the target.
+  Editing usually involves three steps: specifying the edit, selecting the target region, and choosing the surrounding.
+  With `region-wrapper`, the target region is preselected according to the intended edit, reducing the process to two steps.
 
 * License
 
